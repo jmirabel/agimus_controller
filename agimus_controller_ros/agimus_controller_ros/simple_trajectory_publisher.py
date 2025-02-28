@@ -121,8 +121,7 @@ class SimpleTrajectoryPublisher(Node):
         self.scale_amp = self.quintic_trajectory(self.t)
         amp = self.scale_amp * self.amp
         # Currently not changing the last two joints - fingers
-        # for i in range(self.pin_model.nq - 2):
-        for i in [2, 3]:
+        for i in range(self.pin_model.nq):
             self.q[i] = self.q0[i] + amp * np.sin(self.w * self.t)
             self.dq[i] = amp * self.w * np.cos(self.w * self.t)
             self.ddq[i] = -amp * self.w * self.w * np.sin(self.w * self.t)

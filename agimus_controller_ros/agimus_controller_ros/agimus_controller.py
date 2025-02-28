@@ -63,6 +63,10 @@ class AgimusController(Node):
         self.initialize_ros_attributes()
         self.get_logger().info("Init done")
 
+        self._timer_publish = None
+        self._ocp_res_delay = []
+        self._start_compute_time = []
+
     def get_param_from_node(self, node_name: str, param_name: str) -> ParameterValue:
         """Returns parameter from the node"""
         param_client = self.create_client(GetParameters, f"/{node_name}/get_parameters")
@@ -152,6 +156,7 @@ class AgimusController(Node):
                 ),
             )
         self.create_timer(1.0 / self.params.rate, self.run_callback)
+        self.create_timer(1.0 / self.params.rate / 10, self._publish_delayed)
 
     def setup_mpc(self):
         """Creates mpc, ocp, warmstart"""
@@ -299,11 +304,31 @@ class AgimusController(Node):
         if self.params.constant_delay:
             self._ocp_res = ocp_res
         else:
-            self.send_control_msg(ocp_res)
+            self._start_compute_time.append(start_compute_time)
+            self._ocp_res_delay.append(ocp_res)
+
         if self.params.publish_debug_data:
             compute_time = self.get_clock().now() - start_compute_time
             self.ocp_solve_time_pub.publish(compute_time.to_msg())
             self.ocp_x0_pub.publish(self.sensor_msg)
+
+    def _publish_delayed(self, force=False):
+        if len(self._ocp_res_delay) == 0:
+            return
+        now = self.get_clock().now()
+        compute_time = now - self._start_compute_time[0]
+        if not force and compute_time.nanoseconds < 9e6:
+            return
+        self.get_logger().info(
+            "{0} - {1} = {2}".format(
+                now.nanoseconds * 1e-6,
+                self._start_compute_time[0].nanoseconds * 1e-6,
+                (now - self._start_compute_time[0]).nanoseconds * 1e-6,
+            )
+        )
+        self.send_control_msg(self._ocp_res_delay[0])
+        self._ocp_res_delay.pop(0)
+        self._start_compute_time.pop(0)
 
 
 def main(args=None) -> None:
