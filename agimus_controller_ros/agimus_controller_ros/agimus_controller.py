@@ -321,6 +321,7 @@ class AgimusController(Node):
             # Update np_sensor_msg so that the published message contains the correct initial state
             self.np_sensor_msg.joint_state.position = x0_traj_point.robot_configuration
             self.np_sensor_msg.joint_state.velocity = x0_traj_point.robot_velocity
+            self.np_sensor_msg.header.stamp += self.params.ocp.dt
         ocp_res = self.mpc.run(
             initial_state=x0_traj_point,
             # Use x0_traj_point time so that this corresponds to time in the future
