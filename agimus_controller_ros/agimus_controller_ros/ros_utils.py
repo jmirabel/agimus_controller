@@ -1,9 +1,10 @@
 import pinocchio as pin
+import eigenpy
 import numpy as np
 import numpy.typing as npt
 from linear_feedback_controller_msgs_py.numpy_conversions import matrix_numpy_to_msg
 
-from geometry_msgs.msg import Pose
+from geometry_msgs.msg import Pose, Transform
 from agimus_msgs.msg import MpcInput, MpcDebug, Residual
 
 from agimus_controller.trajectory import (
@@ -40,6 +41,23 @@ def array_to_ros_pose(pose_array: Pose) -> npt.NDArray[np.float64]:
     ros_pose.orientation.z = pose_array[5]
     ros_pose.orientation.w = pose_array[6]
     return ros_pose
+
+
+def transform_to_se3(transform: Transform) -> pin.SE3:
+    t = np.array(
+        [
+            transform.translation.x,
+            transform.translation.y,
+            transform.translation.z,
+        ]
+    )
+    q = eigenpy.Quaternion(
+        transform.rotation.w,
+        transform.rotation.x,
+        transform.rotation.y,
+        transform.rotation.z,
+    )
+    return pin.SE3(q, t)
 
 
 def mpc_msg_to_weighted_traj_point(
