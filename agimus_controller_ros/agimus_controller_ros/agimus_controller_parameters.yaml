@@ -42,10 +42,6 @@ agimus_controller_params:
       description: "Number of threads use by the solver"
       validation:
         gt<>: 0 # Strictly greater than 0
-    use_constraints:
-      type: bool
-      default_value: True
-      description: "if True we have Collisions constraints and we use CSQP solver, if False we use FDDP solver"
     activate_callback:
       type: bool
       default_value: False
@@ -74,23 +70,3 @@ agimus_controller_params:
     type: bool
     default_value: True
     description: "Wether we convert collision objects to capsules"
-  self_collision:
-    type: bool
-    default_value: True
-    description: "Wether we account for self-collision"
-  collision_pairs_names:
-    type: string_array
-    default_value: [""]
-    description: List of names of collision pairs passed to the OCP.
-    read_only: true
-  __map_collision_pairs_names:
-    first:
-      type: string
-      description: Name of the first collision geometry of the collision pair.
-      validation:
-        not_empty<>: []
-    second:
-      type: string
-      description: Name of the second collision geometry of the collision pair.
-      validation:
-        not_empty<>: []

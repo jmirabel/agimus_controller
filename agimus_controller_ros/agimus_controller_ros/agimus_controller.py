@@ -154,13 +154,6 @@ class AgimusController(Node, RobotModelsMixin):
         self.params = self.param_listener.get_params()
         self.params.ocp.armature = np.array(self.params.ocp.armature)
         self.traj_buffer = TrajectoryBuffer(self.params.ocp.dt_factor_n_seq)
-        self.params.collision_pairs = [
-            (
-                self.params.get_entry(collision_pair_name).first,
-                self.params.get_entry(collision_pair_name).second,
-            )
-            for collision_pair_name in self.params.collision_pairs_names
-        ]
         # Check that the number of threads is suitable
         # Source: https://stackoverflow.com/a/55423170
         if self.params.ocp.n_threads > len(os.sched_getaffinity(0)):
@@ -365,9 +358,7 @@ class AgimusController(Node, RobotModelsMixin):
             self.create_robot_models(
                 free_flyer=self.params.free_flyer,
                 collision_as_capsule=self.params.collision_as_capsule,
-                self_collision=self.params.self_collision,
                 armature=self.params.ocp.armature,
-                collision_pairs=self.params.collision_pairs,
             )
             self.setup_mpc()
             # It is necessary to return, even if the reference buffer has enough data.

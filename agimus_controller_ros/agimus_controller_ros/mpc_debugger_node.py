@@ -134,14 +134,10 @@ class MPCDebuggerNode(Node, RobotModelsMixin):
             "ocp.dt_factor_n_seq.factors",
             "ocp.dt_factor_n_seq.n_steps",
             "collision_as_capsule",
-            "self_collision",
             "ocp.armature",
             "ocp.definition_yaml_file",
             "ocp.dt",
             "ocp.horizon_size",
-            # "ocp.max_iter",
-            # "ocp.max_qp_iter",
-            # "ocp.activate_callback",
         ]
         params = get_params_from_node(self, "agimus_controller_node", names)
 
@@ -153,7 +149,6 @@ class MPCDebuggerNode(Node, RobotModelsMixin):
         self._ocp_dt_factor_n_seq = DTFactorsNSeq(dt_factors, dt_n_steps)
 
         self._collision_as_capsule = params[3].bool_value
-        self._self_collision = params[4].bool_value
         self._ocp_armature = np.array(params[5].double_array_value)
 
         self._horizon_indices = np.cumsum(
@@ -437,7 +432,6 @@ class MPCDebuggerNode(Node, RobotModelsMixin):
         self.create_robot_models(
             free_flyer=self._robot_has_free_flyer,
             collision_as_capsule=self._collision_as_capsule,
-            self_collision=self._self_collision,
             armature=self._ocp_armature,
         )
         frame_name_ok = self.rmodel.existFrame(self._frame_name)
